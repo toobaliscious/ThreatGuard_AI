@@ -1,76 +1,74 @@
 import streamlit as st
 import pandas as pd
-from sklearn.ensemble import IsolationForest
 import matplotlib.pyplot as plt
-import random
+from sklearn.ensemble import IsolationForest
+from datetime import datetime
 
-st.set_page_config(page_title="ThreatGuard AI", layout="wide")
+# PAGE CONFIG
+st.set_page_config(
+    page_title="ThreatGuard AI SOC Dashboard",
+    layout="wide"
+)
 
+# TITLE
 st.title("🛡️ ThreatGuard AI")
-st.subheader("AI-Powered Cybersecurity Threat Detection Dashboard")
+st.subheader("AI-Powered SOC Threat Detection Dashboard")
 
-# Generate sample logs
-data = []
+st.markdown("---")
 
-# Normal activity
-for i in range(200):
-    failed_logins = random.randint(0, 3)
-    login_frequency = random.randint(1, 5)
+# SIDEBAR
+st.sidebar.title("⚙️ SOC Controls")
 
-    data.append([failed_logins, login_frequency])
-
-# Suspicious activity
-for i in range(15):
-    failed_logins = random.randint(10, 20)
-    login_frequency = random.randint(15, 30)
-
-    data.append([failed_logins, login_frequency])
-
-logs = pd.DataFrame(
-    data,
-    columns=["failed_logins", "login_frequency"]
+uploaded_file = st.sidebar.file_uploader(
+    "Upload Log CSV File",
+    type=["csv"]
 )
 
-# AI model
-model = IsolationForest(contamination=0.07)
-
-logs['anomaly'] = model.fit_predict(logs)
-
-# Threats
-threats = logs[logs['anomaly'] == -1]
-
-# Metrics
-col1, col2, col3 = st.columns(3)
-
-col1.metric("Total Logs", len(logs))
-col2.metric("Threats Detected", len(threats))
-col3.metric("AI Status", "Active")
-
-st.divider()
-
-# Show logs
-st.write("## 📊 Login Activity")
-st.dataframe(logs)
-
-# Threat alerts
-st.write("## 🚨 Threat Alerts")
-st.dataframe(threats)
-
-# Visualization
-st.write("## 📈 Threat Visualization")
-
-fig, ax = plt.subplots()
-
-scatter = ax.scatter(
-    logs['failed_logins'],
-    logs['login_frequency'],
-    c=logs['anomaly']
+# SAMPLE DATA OPTION
+use_sample = st.sidebar.checkbox(
+    "Use Sample SOC Logs",
+    value=True
 )
 
-ax.set_xlabel("Failed Logins")
-ax.set_ylabel("Login Frequency")
-ax.set_title("Threat Detection Graph")
+# LOAD DATA
+if uploaded_file is not None:
 
-st.pyplot(fig)
+    logs = pd.read_csv(uploaded_file)
 
-st.success("ThreatGuard AI is actively monitoring suspicious behavior.")
+elif use_sample:
+
+    sample_data = {
+        'username': [
+            'admin', 'ahmed', 'fatima', 'root',
+            'guest', 'admin', 'ali', 'admin',
+            'sara', 'root', 'admin', 'guest'
+        ],
+
+        'ip_address': [
+            '192.168.1.5', '10.0.0.2', '172.16.0.4',
+            '192.168.1.5', '10.0.0.8', '45.33.21.1',
+            '172.16.0.9', '185.220.101.5',
+            '10.0.0.3', '192.168.1.5',
+            '203.0.113.1', '10.0.0.8'
+        ],
+
+        'failed_logins': [
+            1, 0, 2, 15, 0, 18,
+            1, 22, 0, 17, 25, 1
+        ],
+
+        'login_frequency': [
+            2, 1, 3, 24, 1, 30,
+            2, 35, 1, 28, 40, 2
+        ],
+
+        'timestamp': [
+            '2026-05-10 10:00',
+            '2026-05-10 10:05',
+            '2026-05-10 10:10',
+            '2026-05-10 10:12',
+            '2026-05-10 10:15',
+            '2026-05-10 10:20',
+            '2026-05-10 10:22',
+            '2026-05-10 10:25',
+)
